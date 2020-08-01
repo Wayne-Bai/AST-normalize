@@ -1,0 +1,3 @@
+tetra.model.register("myGlobalModel", {
+	
+});

@@ -1,0 +1,2 @@
+print('c.js')
+xxx

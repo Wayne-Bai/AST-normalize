@@ -1,0 +1,1 @@
+exports.moda = require('lr!moda');

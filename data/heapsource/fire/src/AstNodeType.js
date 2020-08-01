@@ -1,0 +1,14 @@
+exports.null = "null"
+exports.number = "number"
+exports.string = "string"
+exports.hash = "hash"
+exports.array = "array"
+exports.block = "block"
+exports.expression = "expression"
+exports.property = "property"
+exports.index = "index"
+exports.boolean = "boolean"
+exports.delegate = "delegate"
+exports.composite_hash = "composite_hash"
+exports.SPECIAL_TYPES = [exports.delegate, exports.composite_hash, exports.expression, exports.block];
+exports.PARENT_TYPES = [exports.composite_hash, exports.block, exports.array, exports.hash];

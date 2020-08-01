@@ -1,0 +1,9 @@
+dojo.provide("lucid.apps.Messenger");
+dojo.require("dijit.layout.ContentPane");
+dojo.require("dijit.form.Button");
+dojo.require("dijit.form.TextBox");
+dojo.require("lucid.apps.Messenger._base");
+dojo.require("lucid.apps.Messenger.store");
+dojo.require("lucid.apps.Messenger.ui");
+dojo.require("lucid.apps.Messenger.io");
+dojo.require("lucid.apps.Messenger.sound");

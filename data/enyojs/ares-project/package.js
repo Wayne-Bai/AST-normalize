@@ -1,0 +1,10 @@
+enyo.depends(
+	"$lib/enyo-ilib",
+	"$lib/layout",
+	"$lib/onyx/source",
+	"$lib/onyx/source/wip-package.js",
+	"$lib/extra/analyzer2",
+	"$lib/foss",
+	"Ares.less",
+	"source"
+);

@@ -1,0 +1,21 @@
+pref("extensions.rainbows.format", "hex");
+pref("extensions.rainbows.copyFormat", "hex");
+pref("extensions.rainbows.copyDifferent", false);
+pref("extensions.rainbows.wholeNumbers", true);
+pref("extensions.rainbows.lastcolor", "#11EEEE");
+pref("extensions.rainbows.context", false);
+pref("extensions.rainbows.context.preview", true);
+pref("extensions.rainbows.inspector.alwaysShow", true);
+pref("extensions.rainbows.inspector.autoCopy", true);
+pref("extensions.rainbows.inspector.showNodeName", false);
+pref("extensions.rainbows.inspector.showCoordinates", false);
+pref("extensions.rainbows.inspector.showDifference", false);
+pref("extensions.rainbows.inspector.followMouse", true);
+pref("extensions.rainbows.inspector.location", "se");
+pref("extensions.rainbows.picker.color", "#11EEEE");
+pref("extensions.rainbows.picker.mode", "hue");
+pref("extensions.rainbows.picker.hsl", false);
+pref("extensions.rainbows.shortcut.action", "inspector");
+pref("extensions.rainbows.toolbar.added", false);
+pref("extensions.rainbows.analyzer.limit", 6);
+

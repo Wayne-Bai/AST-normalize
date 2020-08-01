@@ -1,0 +1,52 @@
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Rule = (function (_super) {
+    __extends(Rule, _super);
+    function Rule() {
+        _super.apply(this, arguments);
+    }
+    Rule.prototype.apply = function (syntaxTree) {
+        return this.applyWithWalker(new LabelUndefinedWalker(syntaxTree, this.getOptions()));
+    };
+    Rule.FAILURE_STRING = "undefined label: '";
+    return Rule;
+})(Lint.Rules.AbstractRule);
+exports.Rule = Rule;
+var LabelUndefinedWalker = (function (_super) {
+    __extends(LabelUndefinedWalker, _super);
+    function LabelUndefinedWalker() {
+        _super.apply(this, arguments);
+    }
+    LabelUndefinedWalker.prototype.createScope = function () {
+        return {};
+    };
+    LabelUndefinedWalker.prototype.visitLabeledStatement = function (node) {
+        var label = node.identifier.text();
+        var currentScope = this.getCurrentScope();
+        currentScope[label] = true;
+        _super.prototype.visitLabeledStatement.call(this, node);
+    };
+    LabelUndefinedWalker.prototype.visitBreakStatement = function (node) {
+        var position = this.getPosition() + TypeScript.leadingTriviaWidth(node);
+        this.validateLabelAt(node.identifier, position, TypeScript.width(node.breakKeyword));
+        _super.prototype.visitBreakStatement.call(this, node);
+    };
+    LabelUndefinedWalker.prototype.visitContinueStatement = function (node) {
+        var position = this.getPosition() + TypeScript.leadingTriviaWidth(node);
+        this.validateLabelAt(node.identifier, position, TypeScript.width(node.continueKeyword));
+        _super.prototype.visitContinueStatement.call(this, node);
+    };
+    LabelUndefinedWalker.prototype.validateLabelAt = function (label, position, width) {
+        var currentScope = this.getCurrentScope();
+        if (label !== null && !currentScope[label.text()]) {
+            var failureString = Rule.FAILURE_STRING + label.text() + "'";
+            var failure = this.createFailure(position, width, failureString);
+            this.addFailure(failure);
+        }
+    };
+    return LabelUndefinedWalker;
+})(Lint.ScopeAwareRuleWalker);

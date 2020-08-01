@@ -1,0 +1,3 @@
+CustomCssAssistant = Class.create( ExampleAssistantBase, {
+	
+});

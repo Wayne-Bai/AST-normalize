@@ -1,0 +1,3 @@
+$(function () {
+	$('.header, .content').responsive();
+});

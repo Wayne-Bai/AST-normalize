@@ -1,0 +1,1 @@
+if (document.getElementById('progress') != null) document.getElementById('progress').value = 60;

@@ -1,0 +1,11 @@
+module.exports.identity = require('./identity');
+module.exports.role = require('./role');
+module.exports.users = require('./users');
+module.exports.tokens = require('./tokens');
+module.exports.content = require('./content');
+module.exports.auth = require('./auth');
+module.exports.nodes = require('./nodes');
+module.exports.contentTypes = require('./contentTypes');
+module.exports.assets = require('./assets');
+module.exports.event = require('./event');
+module.exports.query = require('./query');

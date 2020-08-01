@@ -1,0 +1,1 @@
+global.sideEffectyValue = 99;

@@ -1,0 +1,27 @@
+tipJS.define({
+	noCache:true,
+	noCacheVersion:"1.21",
+	noCacheParam:"tipJS",
+	noCacheAuto:false,
+	name:"todoMVC",
+	controllers:[
+		"init.js",
+		"create.js",
+		"toggleAll.js",
+		"destroyCompleted.js",
+		"toggle.js",
+		"edit.js",
+		"blurOnEnter.js",
+		"update.js",
+		"destroy.js"
+	],
+	models:[
+		"bindAction.js",
+		"globalTodos.js",
+		"utils.js"
+	],
+	views:[
+		"renderer.js"
+	]
+});
+

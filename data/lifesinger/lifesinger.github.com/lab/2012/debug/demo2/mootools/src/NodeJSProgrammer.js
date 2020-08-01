@@ -1,0 +1,1 @@
+var NodeJSProgrammer = JavaScriptProgrammer.extend({})

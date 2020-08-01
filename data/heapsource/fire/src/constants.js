@@ -1,0 +1,10 @@
+module.exports.DEFAULT_SCRIPT_EXTENSION = ".fjson"
+module.exports.DEFAULT_CUSTOM_SCRIPT_EXTENSION = ".fjs"
+module.exports.DEFAULT_EXPRESSION_EXTENSIONS = [module.exports.DEFAULT_SCRIPT_EXTENSION, module.exports.DEFAULT_CUSTOM_SCRIPT_EXTENSION]
+module.exports.DEFAULT_MANIFEST_FILE_NAME = "ignition.manifest.json"
+module.exports.DEFAULT_ENVIRONMENT = "development"
+module.exports.INITIALIZERS_DIR_NAME = "initializers"
+module.exports.VIRTUAL_EXPRESSION_URI_PROTOCOL = "virtual"
+module.exports.FILE_EXPRESSION_URI_PROTOCOL = "fs"
+module.exports.INITIALIZATION_ERROR_EXIT_CODE = 1
+module.exports.MAIN_EXPRESSION_NOT_FOUND_ERROR_EXIT_CODE = 2

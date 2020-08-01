@@ -1,0 +1,14 @@
+var React = {};
+React.DOM = {};
+React.PropTypes = {};
+React.constructAndRenderComponent = {};
+React.constructAndRenderComponentByID = {};
+React.createClass = {};
+React.initializeTouchEvents = {};
+React.isValidClass = {};
+React.isValidComponent = {};
+React.renderComponent = {};
+React.renderComponentToString = {};
+React.unmountAndReleaseReactRootNode = {};
+React.unmountComponentAtNode = {};
+React.version = {};

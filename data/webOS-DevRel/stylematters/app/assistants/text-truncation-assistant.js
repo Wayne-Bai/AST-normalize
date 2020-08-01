@@ -1,0 +1,3 @@
+TextTruncationAssistant = Class.create( ExampleAssistantBase, {
+
+});
