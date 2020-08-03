@@ -68,33 +68,101 @@ def Normalize(graph, dics):
                     if dics[k-1]['type'] == 'VariableDeclaration':
                         curr = dics[i]['value']
                         dics[i]['value'] = 'v' + str(var_flag)
-                        for j in range(i, len(dics)):
+                        for j in range(len(dics)):
                             if isinstance(dics[j], dict):
                                 if 'value' in dics[j].keys() and dics[j]['value'] == curr:
                                     dics[j]['value'] = 'v' + str(var_flag)
                         var_flag += 1
 
             if dics[i]['type'] == 'Identifier':
-                if dics[i]['value'] != graph.nodes[dics[i]['id']+1]['feature']:
+                if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature']:
                     node_adj = graph.adj[dics[i]['id']+1]
                     for k in node_adj.keys():
-            # FunctionDeclaration (f)
+
+            # Identifier <- FunctionDeclaration (f)
                         if dics[k-1]['type'] == 'FunctionDeclaration':
                             curr = dics[i]['value']
                             dics[i]['value'] = 'f' + str(func_flag)
-                            for j in range(i, len(dics)):
+                            for j in range(len(dics)):
                                 if isinstance(dics[j], dict):
                                     if 'value' in dics[j].keys() and dics[j]['value'] == curr:
                                         dics[j]['value'] = 'f' + str(func_flag)
                             func_flag +=1
-            # CallExpression (f)
+
+            # Identifier <- AssignmentEpression & ForInStatement (v)
+                        if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement':
+                            curr = dics[i]['value']
+                            dics[i]['value'] = 'v' + str(var_flag)
+                            for j in range(len(dics)):
+                                if isinstance(dics[j], dict):
+                                    if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                        dics[j]['value'] = 'v' + str(func_flag)
+                            var_flag += 1
+
+            # Identifier <- CallExpression (f)
                         if dics[k-1]['type'] == 'CallExpression':
-                            if graph.nodes
+                            curr_children = dics[k-1]['children']
+
+                            # Only one child
+                            if len(curr_children) == 1 and curr_children[0] == i:
+                                curr = dics[i]['value']
+                                dics[i]['value'] = 'f' + str(func_flag)
+                                for j in range(len(dics)):
+                                    if isinstance(dics[j], dict):
+                                        if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                            dics[j]['value'] = 'f' + str(func_flag)
+                                func_flag += 1
+
+                            # more than two children
+                            elif len(curr_children) >= 2:
+                                for child in curr_children:
+                                    if child != i and ('value' in dics[child].keys() and
+                                                       dics[child]['value'] != graph.nodes[child+1]['feature']) \
+                                            or dics[child]['type'] != 'Identifier':
+                                        curr = dics[i]['value']
+                                        dics[i]['value'] = 'f' + str(func_flag)
+                                        for j in range(len(dics)):
+                                            if isinstance(dics[j], dict):
+                                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                    dics[j]['value'] = 'f' + str(func_flag)
+                                func_flag += 1
+
+            # Identifier <- FunctionExpression & MemberExpression & UnaryExpression (f)/(v)
+                        if dics[k-1]['type'] == 'FunctionExpression' or dics[k-1]['type'] == 'MemberExpression'\
+                                or dics[k-1]['type'] == 'UnaryExpression':
+                            curr = dics[i]['value']
+                            for j in range(len(dics)):
+                                if isinstance(dics[j], dict):
+                                    if 'value' in dics[j].keys() and dics[j]['value'] == curr and dics[j]['type'] == 'Identifier':
+                                        curr_node = graph.adj[dics[j]['id'] + 1]
+                                        for key in curr_node.keys():
+                                            if dics[key-1]['type'] == 'CallExpression':
+                                                dics[i]['value'] = 'f' + str(func_flag)
+                                                for h in range(len(dics)):
+                                                    if isinstance(dics[h], dict):
+                                                        if 'value' in dics[h].keys() and dics[h]['value'] == curr:
+                                                            dics[h]['value'] = 'f' + str(func_flag)
+                                                func_flag += 1
+                            if dics[i]['value'] == curr:
+                                dics[i]['value'] = 'v' + str(var_flag)
+                                for j in range(len(dics)):
+                                    if isinstance(dics[j], dict):
+                                        if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                            dics[j]['value'] = 'v' + str(var_flag)
+                                var_flag += 1
+
+
+
+
+
+
+
+
 
     # print(dics)
     return dics
 if __name__ == '__main__':
-    file = 'test.json'
+    file = 'test10.json'
     f = open(file, 'r')
     for lines in f.readlines():
         dics = json.loads(lines)
