@@ -57,9 +57,11 @@ def Visualize(graph, file):
 def Normalize(graph, dics):
     var_flag = 0
     func_flag = 0
-    print(graph.nodes(data=True))
+    # print(graph.nodes(data=True))
     for i in range(len(dics)):
         if isinstance(dics[i], dict):
+
+            # VariableDeclarator (v)
             if dics[i]['type'] == 'VariableDeclarator':
                 node_adj = graph.adj[dics[i]['id']+1]
                 for k in node_adj.keys():
@@ -71,7 +73,25 @@ def Normalize(graph, dics):
                                 if 'value' in dics[j].keys() and dics[j]['value'] == curr:
                                     dics[j]['value'] = 'v' + str(var_flag)
                         var_flag += 1
-    print(dics)
+
+            if dics[i]['type'] == 'Identifier':
+                if dics[i]['value'] != graph.nodes[dics[i]['id']+1]['feature']:
+                    node_adj = graph.adj[dics[i]['id']+1]
+                    for k in node_adj.keys():
+            # FunctionDeclaration (f)
+                        if dics[k-1]['type'] == 'FunctionDeclaration':
+                            curr = dics[i]['value']
+                            dics[i]['value'] = 'f' + str(func_flag)
+                            for j in range(i, len(dics)):
+                                if isinstance(dics[j], dict):
+                                    if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                        dics[j]['value'] = 'f' + str(func_flag)
+                            func_flag +=1
+            # CallExpression (f)
+                        if dics[k-1]['type'] == 'CallExpression':
+                            if graph.nodes
+
+    # print(dics)
     return dics
 if __name__ == '__main__':
     file = 'test.json'
