@@ -52,7 +52,7 @@ def Visualize(graph, file):
     for a in edge_list:
         m, n = a[0], a[1]
         dot.edge(str(m), str(n))
-    dot.render("process/test-output/%s.gv" % ('normalize'), view=True)
+    dot.render("process/test-output/%s.gv" % ('normalize-' + file), view=True)
 
 def Normalize(graph, dics):
     var_flag = 0
@@ -61,18 +61,30 @@ def Normalize(graph, dics):
     for i in range(len(dics)):
         if isinstance(dics[i], dict):
 
-            # VariableDeclarator (v)
+            # VariableDeclarator (v)/(f)
             if dics[i]['type'] == 'VariableDeclarator':
                 node_adj = graph.adj[dics[i]['id']+1]
+                VD_list = []
                 for k in node_adj.keys():
-                    if dics[k-1]['type'] == 'VariableDeclaration':
-                        curr = dics[i]['value']
-                        dics[i]['value'] = 'v' + str(var_flag)
-                        for j in range(len(dics)):
-                            if isinstance(dics[j], dict):
-                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                    dics[j]['value'] = 'v' + str(var_flag)
-                        var_flag += 1
+                    VD_list.append(k)
+                print(i)
+                print(VD_list)
+                if dics[VD_list[1]-1]['type'] == 'FunctionExpression':
+                    curr = dics[i]['value']
+                    dics[i]['value'] = 'f' + str(func_flag)
+                    for j in range(len(dics)):
+                        if isinstance(dics[j], dict):
+                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                dics[j]['value'] = 'f' + str(func_flag)
+                    func_flag += 1
+                else:
+                    curr = dics[i]['value']
+                    dics[i]['value'] = 'v' + str(var_flag)
+                    for j in range(len(dics)):
+                        if isinstance(dics[j], dict):
+                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                dics[j]['value'] = 'v' + str(var_flag)
+                    var_flag += 1
 
             if dics[i]['type'] == 'Identifier':
                 if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature']:
@@ -116,8 +128,16 @@ def Normalize(graph, dics):
                             # more than two children
                             elif len(curr_children) >= 2:
                                 for child in curr_children:
-                                    if child != i and ('value' in dics[child].keys() and
-                                                       dics[child]['value'] != graph.nodes[child+1]['feature']) \
+                                    if child != i and 'value' in dics[child].keys() and 'f' in dics[child]['value']:
+                                        curr = dics[i]['value']
+                                        dics[i]['value'] = 'v' + str(var_flag)
+                                        for j in range(len(dics)):
+                                            if isinstance(dics[j], dict):
+                                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                    dics[j]['value'] = 'v' + str(var_flag)
+                                        var_flag += 1
+                                    elif child != i and ('value' in dics[child].keys() and
+                                                       'v' in dics[child]['value']) \
                                             or dics[child]['type'] != 'Identifier':
                                         curr = dics[i]['value']
                                         dics[i]['value'] = 'f' + str(func_flag)
@@ -125,7 +145,7 @@ def Normalize(graph, dics):
                                             if isinstance(dics[j], dict):
                                                 if 'value' in dics[j].keys() and dics[j]['value'] == curr:
                                                     dics[j]['value'] = 'f' + str(func_flag)
-                                func_flag += 1
+                                        func_flag += 1
 
             # Identifier <- FunctionExpression & MemberExpression & UnaryExpression (f)/(v)
                         if dics[k-1]['type'] == 'FunctionExpression' or dics[k-1]['type'] == 'MemberExpression'\
@@ -137,12 +157,22 @@ def Normalize(graph, dics):
                                         curr_node = graph.adj[dics[j]['id'] + 1]
                                         for key in curr_node.keys():
                                             if dics[key-1]['type'] == 'CallExpression':
-                                                dics[i]['value'] = 'f' + str(func_flag)
-                                                for h in range(len(dics)):
-                                                    if isinstance(dics[h], dict):
-                                                        if 'value' in dics[h].keys() and dics[h]['value'] == curr:
-                                                            dics[h]['value'] = 'f' + str(func_flag)
-                                                func_flag += 1
+                                                curr_list = dics[key-1]['children']
+                                                for node in curr_list:
+                                                    if node != j and 'value' in dics[node].keys() and 'f' in dics[node]['value']:
+                                                        dics[i]['value'] = 'v' + str(var_flag)
+                                                        for h in range(len(dics)):
+                                                            if isinstance(dics[h], dict):
+                                                                if 'value' in dics[h].keys() and dics[h]['value'] == curr:
+                                                                    dics[h]['value'] = 'v' + str(var_flag)
+                                                        var_flag += 1
+                                                    elif node != j and 'value' in dics[node].keys() and 'f' not in dics[node]['value']:
+                                                        dics[i]['value'] = 'f' + str(func_flag)
+                                                        for h in range(len(dics)):
+                                                            if isinstance(dics[h], dict):
+                                                                if 'value' in dics[h].keys() and dics[h]['value'] == curr:
+                                                                    dics[h]['value'] = 'f' + str(func_flag)
+                                                        func_flag += 1
                             if dics[i]['value'] == curr:
                                 dics[i]['value'] = 'v' + str(var_flag)
                                 for j in range(len(dics)):
