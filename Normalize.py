@@ -114,14 +114,15 @@ def Normalize(graph, dics):
 
 
 
-            # Identifier <- AssignmentEpression & ForInStatement (v)
-                        if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement':
+            # Identifier <- AssignmentEpression & ForInStatement & SequenceExpression (v)
+                        if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement'\
+                                or dics[k-1]['type'] == 'SequenceExpression':
                             curr = dics[i]['value']
                             dics[i]['value'] = 'v' + str(var_flag)
                             for j in range(len(dics)):
                                 if isinstance(dics[j], dict):
                                     if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                        dics[j]['value'] = 'v' + str(func_flag)
+                                        dics[j]['value'] = 'v' + str(var_flag)
                             var_flag += 1
 
             # Identifier <- CallExpression (f)
@@ -205,7 +206,7 @@ def Normalize(graph, dics):
     # print(dics)
     return dics
 if __name__ == '__main__':
-    file = 'WhileStatement.json'
+    file = 'SequenceExpression.json'
     f = open(file, 'r')
     for lines in f.readlines():
         dics = json.loads(lines)
