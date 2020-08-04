@@ -52,6 +52,7 @@ def Visualize(graph, file):
     for a in edge_list:
         m, n = a[0], a[1]
         dot.edge(str(m), str(n))
+    # dot.render("process/test-output/%s.gv" % (file), view=True)
     dot.render("process/test-output/%s.gv" % ('normalize-' + file), view=True)
 
 def Normalize(graph, dics):
@@ -67,8 +68,6 @@ def Normalize(graph, dics):
                 VD_list = []
                 for k in node_adj.keys():
                     VD_list.append(k)
-                print(i)
-                print(VD_list)
                 if dics[VD_list[1]-1]['type'] == 'FunctionExpression':
                     curr = dics[i]['value']
                     dics[i]['value'] = 'f' + str(func_flag)
@@ -91,15 +90,29 @@ def Normalize(graph, dics):
                     node_adj = graph.adj[dics[i]['id']+1]
                     for k in node_adj.keys():
 
-            # Identifier <- FunctionDeclaration (f)
+            # Identifier <- FunctionDeclaration (f)/(v)
                         if dics[k-1]['type'] == 'FunctionDeclaration':
+                            node = graph.adj[dics[k-1]['id']+1]
                             curr = dics[i]['value']
-                            dics[i]['value'] = 'f' + str(func_flag)
-                            for j in range(len(dics)):
-                                if isinstance(dics[j], dict):
-                                    if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                        dics[j]['value'] = 'f' + str(func_flag)
-                            func_flag +=1
+                            FD_list = []
+                            for key_FD in node.keys():
+                                FD_list.append((key_FD))
+                            if 'f' not in dics[FD_list[1] - 1]['value']:
+                                dics[i]['value'] = 'f' + str(func_flag)
+                                for j in range(len(dics)):
+                                    if isinstance(dics[j], dict):
+                                        if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                            dics[j]['value'] = 'f' + str(func_flag)
+                                func_flag +=1
+                            else:
+                                dics[i]['value'] = 'v' + str(var_flag)
+                                for j in range(len(dics)):
+                                    if isinstance(dics[j], dict):
+                                        if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                            dics[j]['value'] = 'v' + str(var_flag)
+                                var_flag += 1
+
+
 
             # Identifier <- AssignmentEpression & ForInStatement (v)
                         if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement':
@@ -192,7 +205,7 @@ def Normalize(graph, dics):
     # print(dics)
     return dics
 if __name__ == '__main__':
-    file = 'test10.json'
+    file = 'WhileStatement.json'
     f = open(file, 'r')
     for lines in f.readlines():
         dics = json.loads(lines)
