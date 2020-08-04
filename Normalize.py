@@ -116,7 +116,7 @@ def Normalize(graph, dics):
 
             # Identifier <- AssignmentEpression & ForInStatement & SequenceExpression (v)
                         if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement'\
-                                or dics[k-1]['type'] == 'SequenceExpression':
+                                or dics[k-1]['type'] == 'SequenceExpression' or dics[k-1]['type'] == 'SwitchCase':
                             curr = dics[i]['value']
                             dics[i]['value'] = 'v' + str(var_flag)
                             for j in range(len(dics)):
