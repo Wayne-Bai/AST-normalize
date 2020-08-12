@@ -55,7 +55,7 @@ def Visualize(graph, file):
     # dot.render("process/test-output/%s.gv" % (file), view=True)
     dot.render("process/test-output/%s.gv" % ('normalize-' + file), view=True)
 
-def Normalize(graph, dics):
+def Normalize(graph, dics, property):
     var_flag = 0
     func_flag = 0
     # print(graph.nodes(data=True))
@@ -64,29 +64,31 @@ def Normalize(graph, dics):
 
             # VariableDeclarator (v)/(f)
             if dics[i]['type'] == 'VariableDeclarator':
-                node_adj = graph.adj[dics[i]['id']+1]
-                VD_list = []
-                for k in node_adj.keys():
-                    VD_list.append(k)
-                if len(VD_list) == 2 and dics[VD_list[1]-1]['type'] == 'FunctionExpression':
-                    curr = dics[i]['value']
-                    dics[i]['value'] = 'f' + str(func_flag)
-                    for j in range(len(dics)):
-                        if isinstance(dics[j], dict):
-                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                dics[j]['value'] = 'f' + str(func_flag)
-                    func_flag += 1
-                else:
-                    curr = dics[i]['value']
-                    dics[i]['value'] = 'v' + str(var_flag)
-                    for j in range(len(dics)):
-                        if isinstance(dics[j], dict):
-                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                dics[j]['value'] = 'v' + str(var_flag)
-                    var_flag += 1
+                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature']:
+                    node_adj = graph.adj[dics[i]['id']+1]
+                    VD_list = []
+                    for k in node_adj.keys():
+                        VD_list.append(k)
+                    if len(VD_list) == 2 and dics[VD_list[1]-1]['type'] == 'FunctionExpression':
+                        curr = dics[i]['value']
+                        dics[i]['value'] = 'f' + str(func_flag)
+                        for j in range(len(dics)):
+                            if isinstance(dics[j], dict):
+                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                    dics[j]['value'] = 'f' + str(func_flag)
+                        func_flag += 1
+                    else:
+                        curr = dics[i]['value']
+                        dics[i]['value'] = 'v' + str(var_flag)
+                        for j in range(len(dics)):
+                            if isinstance(dics[j], dict):
+                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                    dics[j]['value'] = 'v' + str(var_flag)
+                        var_flag += 1
 
+            # Identifier (v)/(f) depneds on the node type before it
             if dics[i]['type'] == 'Identifier':
-                if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature']:
+                if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature'] and dics[i]['value'] not in property:
                     node_adj = graph.adj[dics[i]['id']+1]
                     for k in node_adj.keys():
 
@@ -205,23 +207,44 @@ def Normalize(graph, dics):
                                             dics[j]['value'] = 'v' + str(var_flag)
                                 var_flag += 1
 
+            # Property (v)/build-in: depneds on whether it is build-in property or not
+            if dics[i]['type'] == 'Property':
+                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature'] and dics[i]['value'] not in property:
+                    curr = dics[i]['value']
+                    dics[i]['value'] = 'v' + str(var_flag)
+                    for j in range(len(dics)):
+                        if isinstance(dics[j], dict):
+                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                dics[j]['value'] = 'v' + str(var_flag)
+                    var_flag += 1
 
-
-
-
-
-
-
-
-    # print(dics)
+            # Normalize LiteralString as 's'
+            if dics[i]['type'] == 'LiteralString':
+                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature']:
+                    dics[i]['value'] = 's'
     return dics
+
+
 if __name__ == '__main__':
-    file = 'AssignmentPattern.json'
-    f = open(file, 'r')
-    for lines in f.readlines():
+    file = 'test/test1.json'
+    f1 = open(file, 'r')
+    f2 = open('properties.txt', 'r')
+    w = open('normalize.json', 'a')
+
+    property = []
+
+    for line in f2.readlines():
+        line = line.strip('\n')
+        if line not in property:
+            property.append(line)
+
+    for lines in f1.readlines():
         dics = json.loads(lines)
         graph = Generate(dics)
         # Visualize(graph,file)
-        normalize_dic = Normalize(graph,dics)
+        normalize_dic = Normalize(graph,dics,property)
+        # w2j = json.dumps(normalize_dic)
+        # w.write(w2j)
+        # w.write('\n')
         normalize_graph = Generate(normalize_dic)
         Visualize(normalize_graph,file)
