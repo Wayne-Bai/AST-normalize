@@ -292,7 +292,7 @@ keys
 Set
 WeakMap
 WeakSet
-Add
+add
 ArrayBuffer
 isView
 transfer
@@ -417,3 +417,7 @@ trace
 warn
 __proto__
 prototype
+import
+export
+extends
+class
