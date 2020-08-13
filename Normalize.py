@@ -34,7 +34,7 @@ def Generate(dics):
         # print(G.nodes(data=True))
     return G
 
-def Visualize(graph, file):
+def Visualize(graph, file,Original=True):
     # dot = graphviz.Graph(comment='Result', format='png')
     dot = graphviz.Graph(comment='Result', format='pdf')
     node_list = graph.node
@@ -43,7 +43,7 @@ def Visualize(graph, file):
         node_type = graph.node[i]['name']
         if 'feature' in graph.node[i].keys():
             node_value = graph.node[i]['feature']
-            node = node_type + ': [' + node_value + ']'
+            node = str(node_type) + ': [' + str(node_value) + ']'
             print(node)
             dot.node(str(i), node)
         else:
@@ -52,19 +52,22 @@ def Visualize(graph, file):
     for a in edge_list:
         m, n = a[0], a[1]
         dot.edge(str(m), str(n))
-    # dot.render("process/test-output/%s.gv" % (file), view=True)
-    dot.render("process/test-output/%s.gv" % ('normalize-' + file), view=True)
+    if Original:
+        dot.render("process/original/%s.gv" % (file), view=True)
+    else:
+        dot.render("process/normalize/%s.gv" % (file), view=True)
 
 def Normalize(graph, dics, property):
     var_flag = 0
     func_flag = 0
+    str_flag = 0
     # print(graph.nodes(data=True))
     for i in range(len(dics)):
         if isinstance(dics[i], dict):
 
             # VariableDeclarator (v)/(f)
             if dics[i]['type'] == 'VariableDeclarator':
-                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature']:
+                if 'value' in dics[i].keys() and dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature']:
                     node_adj = graph.adj[dics[i]['id']+1]
                     VD_list = []
                     for k in node_adj.keys():
@@ -88,7 +91,7 @@ def Normalize(graph, dics, property):
 
             # Identifier (v)/(f) depneds on the node type before it
             if dics[i]['type'] == 'Identifier':
-                if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature'] and dics[i]['value'] not in property:
+                if dics[i]['value'] == graph.nodes[dics[i]['id']+1]['feature'] and dics[i]['value'] not in property and type(dics[i]['value']) != int and type(dics[i]['value']) != float:
                     node_adj = graph.adj[dics[i]['id']+1]
                     for k in node_adj.keys():
 
@@ -116,10 +119,11 @@ def Normalize(graph, dics, property):
 
 
 
-            # Identifier <- AssignmentEpression & ForInStatement & SequenceExpression (v)
+            # Identifier <- AssignmentEpression & ForInStatement & SequenceExpression & Property & NewExpression(v)
                         if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement'\
                                 or dics[k-1]['type'] == 'SequenceExpression' or dics[k-1]['type'] == 'SwitchCase'\
-                                or dics[k-1]['type'] == 'CatchClause' or dics[k-1]['type'] == 'AssignmentPattern':
+                                or dics[k-1]['type'] == 'CatchClause' or dics[k-1]['type'] == 'AssignmentPattern'\
+                                or dics[k-1]['type'] == 'Property' or dics[k-1]['type'] == 'NewExpression':
                             curr = dics[i]['value']
                             dics[i]['value'] = 'v' + str(var_flag)
                             for j in range(len(dics)):
@@ -144,29 +148,59 @@ def Normalize(graph, dics, property):
 
                             # more than two children
                             elif len(curr_children) >= 2:
+                                child_type_list = []
+                                child_value_list = []
                                 for child in curr_children:
-                                    if child != i and 'value' in dics[child].keys() and 'f' in dics[child]['value']:
-                                        curr = dics[i]['value']
-                                        dics[i]['value'] = 'v' + str(var_flag)
-                                        for j in range(len(dics)):
-                                            if isinstance(dics[j], dict):
-                                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                                    dics[j]['value'] = 'v' + str(var_flag)
-                                        var_flag += 1
-                                    elif child != i and ('value' in dics[child].keys() and
-                                                       'v' in dics[child]['value']) \
-                                            or dics[child]['type'] != 'Identifier':
-                                        curr = dics[i]['value']
-                                        dics[i]['value'] = 'f' + str(func_flag)
-                                        for j in range(len(dics)):
-                                            if isinstance(dics[j], dict):
-                                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
-                                                    dics[j]['value'] = 'f' + str(func_flag)
-                                        func_flag += 1
+                                    child_type_list.append(dics[child]['type'])
+                                    if 'value' in dics[child].keys():
+                                        child_value_list.append(dics[child]['value'])
+                                child_type_list.remove(dics[i]['type'])
+                                # print(child_type_list)
+                                child_value_list.remove(dics[i]['value'])
+                                # print(child_value_list)
+                                symbol = 0
+                                for value in child_value_list:
+                                    if 'f' in value:
+                                        symbol = 1
+                                if symbol == 1:
+                                    curr = dics[i]['value']
+                                    dics[i]['value'] = 'v' + str(var_flag)
+                                    for j in range(len(dics)):
+                                        if isinstance(dics[j], dict):
+                                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                dics[j]['value'] = 'v' + str(var_flag)
+                                    var_flag += 1
+                                elif symbol == 0 and len(set(child_type_list)) == 1:
+                                    curr = dics[i]['value']
+                                    dics[i]['value'] = 'f' + str(func_flag)
+                                    for j in range(len(dics)):
+                                        if isinstance(dics[j], dict):
+                                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                dics[j]['value'] = 'f' + str(func_flag)
+                                    func_flag += 1
+                                elif symbol == 0 and len(set(child_type_list)) == 2 and 'Property' in set(child_type_list)\
+                                        and 'Identifier' in set(child_value_list):
+                                    curr = dics[i]['value']
+                                    dics[i]['value'] = 'f' + str(func_flag)
+                                    for j in range(len(dics)):
+                                        if isinstance(dics[j], dict):
+                                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                dics[j]['value'] = 'f' + str(func_flag)
+                                    func_flag += 1
+                                elif symbol == 0 and len(set(child_type_list)) > 1:
+                                    curr = dics[i]['value']
+                                    dics[i]['value'] = 'v' + str(var_flag)
+                                    for j in range(len(dics)):
+                                        if isinstance(dics[j], dict):
+                                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                                dics[j]['value'] = 'v' + str(var_flag)
+                                    var_flag += 1
 
-            # Identifier <- FunctionExpression & MemberExpression & UnaryExpression (f)/(v)
+            # Identifier <- FunctionExpression & MemberExpression & UnaryExpression & BinaryExpression & LogicalExpression
+            #               & ExpressionStatement(f)/(v)
                         if dics[k-1]['type'] == 'FunctionExpression' or dics[k-1]['type'] == 'MemberExpression'\
-                                or dics[k-1]['type'] == 'UnaryExpression':
+                                or dics[k-1]['type'] == 'UnaryExpression' or dics[k-1]['type'] == 'BinaryExpression'\
+                                or dics[k-1]['type'] == 'LogicalExpression' or dics[k-1]['type'] == 'ExpressionStatement':
                             curr = dics[i]['value']
                             for j in range(len(dics)):
                                 if isinstance(dics[j], dict):
@@ -209,30 +243,42 @@ def Normalize(graph, dics, property):
 
             # Property (v)/build-in: depneds on whether it is build-in property or not
             if dics[i]['type'] == 'Property':
-                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature'] and dics[i]['value'] not in property:
+                # print('************************')
+                # if 'value' in dics[i].keys():
+                #     print('-------------------------')
+                #     print(dics[i]['value'])
+                #     print(type(dics[i]['value']))
+                if 'value' in dics[i].keys() and dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature'] \
+                        and dics[i]['value'] not in property and type(dics[i]['value']) != int and type(dics[i]['value']) != float:
                     curr = dics[i]['value']
                     dics[i]['value'] = 'v' + str(var_flag)
                     for j in range(len(dics)):
                         if isinstance(dics[j], dict):
-                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                            if 'value' in dics[j].keys() and dics[j]['type'] != 'LiteralNumber'and dics[j]['value'] == curr:
                                 dics[j]['value'] = 'v' + str(var_flag)
                     var_flag += 1
 
             # Normalize LiteralString as 's'
             if dics[i]['type'] == 'LiteralString':
-                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature']:
-                    dics[i]['value'] = 's'
+                if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature'] and dics[i]['value'] != 'use strict':
+                    curr = dics[i]['value']
+                    dics[i]['value'] = 's' + str(str_flag)
+                    for j in range(len(dics)):
+                        if isinstance(dics[j], dict):
+                            if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                dics[j]['value'] = 's' + str(str_flag)
+                    str_flag += 1
     return dics
 
 
 if __name__ == '__main__':
-    file = 'test/test1.json'
+    file = '500-50-norequires.json'
     f1 = open(file, 'r')
     f2 = open('properties.txt', 'r')
-    w = open('normalize.json', 'a')
+    w = open('normalize-500-50-nor.json', 'a')
 
     property = []
-
+    flag = 1
     for line in f2.readlines():
         line = line.strip('\n')
         if line not in property:
@@ -241,10 +287,12 @@ if __name__ == '__main__':
     for lines in f1.readlines():
         dics = json.loads(lines)
         graph = Generate(dics)
-        # Visualize(graph,file)
+        file_name = file + '-' + str(flag)
+        # Visualize(graph,file_name)
         normalize_dic = Normalize(graph,dics,property)
-        # w2j = json.dumps(normalize_dic)
-        # w.write(w2j)
-        # w.write('\n')
-        normalize_graph = Generate(normalize_dic)
-        Visualize(normalize_graph,file)
+        w2j = json.dumps(normalize_dic)
+        w.write(w2j)
+        w.write('\n')
+        # normalize_graph = Generate(normalize_dic)
+        # Visualize(normalize_graph,file_name,Original=False)
+        flag += 1
