@@ -272,10 +272,10 @@ def Normalize(graph, dics, property):
 
 
 if __name__ == '__main__':
-    file = '500-50-norequires.json'
+    file = 'check1.json'
     f1 = open(file, 'r')
     f2 = open('properties.txt', 'r')
-    w = open('normalize-500-50-nor.json', 'a')
+    w = open('deduplicate_50graphs-normalize.json', 'a')
 
     property = []
     flag = 1
@@ -288,11 +288,11 @@ if __name__ == '__main__':
         dics = json.loads(lines)
         graph = Generate(dics)
         file_name = file + '-' + str(flag)
-        # Visualize(graph,file_name)
-        normalize_dic = Normalize(graph,dics,property)
-        w2j = json.dumps(normalize_dic)
-        w.write(w2j)
-        w.write('\n')
+        Visualize(graph,file_name)
+        # normalize_dic = Normalize(graph,dics,property)
+        # w2j = json.dumps(normalize_dic)
+        # w.write(w2j)
+        # w.write('\n')
         # normalize_graph = Generate(normalize_dic)
         # Visualize(normalize_graph,file_name,Original=False)
         flag += 1
