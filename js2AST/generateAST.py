@@ -1,82 +1,80 @@
 import esprima
+import os
 import json
 
-
-def extractAST(dic, flag):
-    global new_curr, new_curr_list
+def extractAST(dic, dic_list, flag):
     new_dic = {}
-    value_type = []
+    new_list = []
 
-    for value in dic.values():
-        value_type.append(type(value))
-    # print(value_type)
-    if list in value_type or dict in value_type:
+    if type(dic) == dict:
+        for value in dic.values():
+            if type(value) == list or type(value) == dict:
+                new_list.append(value)
+        # print(new_list)
+
+    if new_list != []:
+
         for key, value in dic.items():
             if key == 'type':
                 new_dic['id'] = flag
                 new_dic['type'] = value
                 flag += 1
-            if key == 'name' or key == 'value':
+            if key == 'value' or key == 'name':
                 new_dic['value'] = value
-            if type(value) == list:
-                children = []
-                for i in range(len(value)):
-                    new_curr_dic, new_curr_list, flag = extractAST(value[i], flag)
-                    for dics in new_curr_list:
-                        if dics not in new_curr_dic:
-                            for k,v in dics.items():
-                                if k == 'id':
-                                    children.append(v)
-                    new_dic['children'] = children
-                    new_curr = new_curr_list
-                    new_curr_list.append(new_dic)
 
-            elif type(value) == dict:
-                children = []
-                new_curr_dic, new_curr_list, flag = extractAST(value, flag)
-                for dics in new_curr_list:
-                    if dics not in new_curr_dic:
-                        for k, v in dics.items():
-                            if k == 'id':
-                                children.append(v)
-                new_dic['children'] = children
-                new_curr = new_curr_list
-                new_curr_list.append(new_dic)
-        return new_curr, new_curr_list, flag
+        children = []
+
+        for child in new_list:
+            if type(child) == dict:
+                child_dic, dic_list, flag = extractAST(child, dic_list, flag)
+                children.append(child_dic['id'])
+            if type(child) == list:
+                for i in range(len(child)):
+                    child_dic, dic_list, flag = extractAST(child[i], dic_list, flag)
+                    children.append(child_dic['id'])
+        new_dic['children'] = children
+        dic_list.append(new_dic)
+
+        return new_dic, dic_list, flag
+
     else:
-        new_list = []
         for key,value in dic.items():
             if key == 'type':
                 new_dic['id'] = flag
                 new_dic['type'] = value
                 flag += 1
-            if key == 'name' or key == 'value':
+            if key == 'value' or key == 'name':
                 new_dic['value'] = value
-            new_list.append(new_dic)
-            print(new_list)
+        dic_list.append(new_dic)
+        return new_dic, dic_list, flag
 
 
-        return [], new_list, flag
+
+
+
 
 if __name__ == '__main__':
-    # print(esprima)
-
-    # tree = esprima.tokenize('console.log("helloworld")', range=True)
-
-    # print(json.dumps(tree.to_dict()))
-    # print(tree)
-
-    tree = esprima.parseScript('console.log("helloworld")')
-    # print(json.dumps(tree.toDict()))
+    # path = 'dataset'
+    # files = os.listdir('dataset')
+    # for file in files:
+    #     if not file.startswith('.'):
+    #         f = os.listdir(path+'/'+file)
+    #         print(f)
+    f = open('test.js', 'r')
+    code_str = ''
+    for line in f.readlines():
+        code_str += str(line)
+    # print(code_str)
+    tree = esprima.parseScript(code_str)
     tree_dic = tree.toDict()
-    print(tree)
-    # print(tree.toDict())
-    #
-    # ast_dic = []
-    # flag = 0
-    # new_dic = {}
-    # dic, final_list, flag = extractAST(tree_dic, flag)
-    # print(final_list)
-    # for key,value in tree_dic.items():
-    #     if key == 'type':
-    #         curr_dic = {}
+    # print(tree)
+    ast_dic = []
+    flag = 0
+    dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
+    AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
+    f1 = open('AST.json', 'a')
+    AST_list_json = json.dumps(AST_list)
+    f1.write(AST_list_json)
+    f1.write('\n')
+    print(AST_list_json)
+    print(type(AST_list_json))
