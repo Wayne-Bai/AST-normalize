@@ -272,10 +272,10 @@ def Normalize(graph, dics, property):
 
 
 if __name__ == '__main__':
-    file = 'check1.json'
+    file = 'test/check1.json'
     f1 = open(file, 'r')
     f2 = open('properties.txt', 'r')
-    w = open('deduplicate_50graphs-normalize.json', 'a')
+    w = open('test/deduplicate_50graphs-normalize.json', 'a')
 
     property = []
     flag = 1
