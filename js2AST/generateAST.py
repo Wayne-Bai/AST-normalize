@@ -1,4 +1,5 @@
 import esprima
+# import js2py
 import os
 import json
 
@@ -77,28 +78,45 @@ if __name__ == '__main__':
                         code_str = ''
                         for line in f.readlines():
                             code_str += str(line)
-    # f = open('test2.js', 'r')
+
+    # path = 'dataset/2016'
+    # files = os.listdir(path)
+    # for file in files:
+    #     if '.' not in file:
+    #         js_f = os.listdir(path + '/' + file)
+    #         for js in js_f:
+    #             f = open(path + '/' + file + '/' + js, 'r')
+    #             print(path + '/' + file + '/' + js)
+    #             code_str = ''
+    #             for line in f.readlines():
+    #                 code_str += str(line)
+
+    # f = open('test4.js', 'r')
     # code_str = ''
     # for line in f.readlines():
     #     code_str += str(line)
 
-                        # # print(code_str)
-                        tree = esprima.parseScript(code_str)
-                        tree_dic = tree.toDict()
-                        print(tree_dic)
-                        # print(tree)
-                        ast_dic = []
-                        flag = 0
-                        dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
-                        AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
-                        print(tree)
-                        f1 = open('AST.json', 'a')
-                        print(AST_list)
-                        AST_list_json = json.dumps(AST_list)
+                # # print(code_str)
+                # esprima = js2py.require('esprima')
+                        try:
+                            tree = esprima.parseScript(code_str)
+                            tree_dic = tree.toDict()
+                            print(tree_dic)
+                            # print(tree)
+                            ast_dic = []
+                            flag = 0
+                            dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
+                            AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
+                            print(tree)
+                            f1 = open('AST.json', 'a')
+                            print(AST_list)
+                            AST_list_json = json.dumps(AST_list)
 
-                        f1.write(AST_list_json)
-                        f1.write('\n')
-                        f.close()
-                        f1.close()
-                        print(AST_list_json)
-                        print(type(AST_list_json))
+                            f1.write(AST_list_json)
+                            f1.write('\n')
+                            f.close()
+                            f1.close()
+                            print(AST_list_json)
+                            print(type(AST_list_json))
+                        except Exception:
+                            pass
