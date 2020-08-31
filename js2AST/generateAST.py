@@ -64,6 +64,8 @@ def extractAST(dic, dic_list, flag):
 
 
 if __name__ == '__main__':
+    w1 = open('AST-address.txt', 'a')
+    w2 = open('problem-AST.txt', 'a')
     path = 'dataset'
     files = os.listdir(path)
     for file in files:
@@ -99,6 +101,8 @@ if __name__ == '__main__':
                 # # print(code_str)
                 # esprima = js2py.require('esprima')
                         try:
+                            w1.write(path + '/' + file + '/' + js_f + '/' + js)
+                            w1.write('\n')
                             tree = esprima.parseScript(code_str)
                             tree_dic = tree.toDict()
                             print(tree_dic)
@@ -119,4 +123,8 @@ if __name__ == '__main__':
                             print(AST_list_json)
                             print(type(AST_list_json))
                         except Exception:
-                            pass
+                            w2.write(path + '/' + file + '/' + js_f + '/' + js)
+                            w2.write('\n')
+
+    w1.close()
+    w2.close()
