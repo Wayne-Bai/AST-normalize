@@ -24,8 +24,8 @@ for file in files:
             for i in range(len(line_list)):
                 if '```' in line_list[i]:
                     num_list.append(i)
-
-            w = open('dataset-poc-pro' + '/' + file + '/' + js, 'a')
+            js = js.strip('.md')
+            w = open('dataset-poc-pro' + '/' + file + '/' + js + '.js', 'a')
             for i in range(num_list[0] + 1, num_list[1]):
                 w.write(line_list[i])
                 w.write('\n')
