@@ -64,22 +64,22 @@ def extractAST(dic, dic_list, flag):
 
 
 if __name__ == '__main__':
-    w1 = open('AST-address.txt', 'a')
-    w2 = open('problem-AST.txt', 'a')
-    path = 'dataset'
+    w1 = open('AST-POC-address.txt', 'a')
+    w2 = open('problem-AST-POC.txt', 'a')
+    path = 'dataset-poc-pro'
     files = os.listdir(path)
     for file in files:
         if '.' not in file:
             f = os.listdir(path+'/'+file)
-            for js_f in f:
-                if '.' not in js_f:
-                    js_file = os.listdir(path + '/' + file + '/' + js_f)
-                    for js in js_file:
-                        f = open(path + '/' + file + '/' + js_f + '/' + js, 'r')
-                        print(path + '/' + file + '/' + js_f + '/' + js)
-                        code_str = ''
-                        for line in f.readlines():
-                            code_str += str(line)
+            # for js_f in f:
+            #     if '.' not in js_f:
+            #         js_file = os.listdir(path + '/' + file + '/' + js_f)
+            for js in f:
+                # f = open(path + '/' + file + '/' + js_f + '/' + js, 'r')
+                # print(path + '/' + file + '/' + js_f + '/' + js)
+                f = open(path + '/' + file + '/' + js, 'r')
+                print(path + '/' + file  + '/' + js)
+                src = f.read()
 
     # path = 'dataset/2016'
     # files = os.listdir(path)
@@ -100,31 +100,60 @@ if __name__ == '__main__':
 
                 # # print(code_str)
                 # esprima = js2py.require('esprima')
-                        try:
-                            w1.write(path + '/' + file + '/' + js_f + '/' + js)
-                            w1.write('\n')
-                            tree = esprima.parseScript(code_str)
-                            tree_dic = tree.toDict()
-                            print(tree_dic)
-                            # print(tree)
-                            ast_dic = []
-                            flag = 0
-                            dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
-                            AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
-                            print(tree)
-                            f1 = open('AST.json', 'a')
-                            print(AST_list)
-                            AST_list_json = json.dumps(AST_list)
 
-                            f1.write(AST_list_json)
-                            f1.write('\n')
-                            f.close()
-                            f1.close()
-                            print(AST_list_json)
-                            print(type(AST_list_json))
-                        except Exception:
-                            w2.write(path + '/' + file + '/' + js_f + '/' + js)
-                            w2.write('\n')
+                # # w1.write(path + '/' + file + '/' + js_f + '/' + js)
+                # tree = esprima.parseScript(code_str)
+                # tree_dic = tree.toDict()
+                # print(tree_dic)
+                # # print(tree)
+                # ast_dic = []
+                # flag = 0
+                # dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
+                # AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
+                # print(tree)
+                # f1 = open('AST-POC.json', 'a')
+                # print(AST_list)
+                # AST_list_json = json.dumps(AST_list)
+                #
+                # w1.write(path + '/' + file + '/' + js)
+                # w1.write('\n')
+                #
+                # f1.write(AST_list_json)
+                # f1.write('\n')
+                # f.close()
+                # f1.close()
+                # print(AST_list_json)
+                # print(type(AST_list_json))
+
+
+
+                try:
+                    # w1.write(path + '/' + file + '/' + js_f + '/' + js)
+                    tree = esprima.parseScript(src)
+                    tree_dic = tree.toDict()
+                    print(tree_dic)
+                    # print(tree)
+                    ast_dic = []
+                    flag = 0
+                    dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
+                    AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
+                    print(tree)
+                    f1 = open('AST-POC.json', 'a')
+                    print(AST_list)
+                    AST_list_json = json.dumps(AST_list)
+
+                    w1.write(path + '/' + file + '/' + js)
+                    w1.write('\n')
+
+                    f1.write(AST_list_json)
+                    f1.write('\n')
+                    f.close()
+                    f1.close()
+                    print(AST_list_json)
+                    print(type(AST_list_json))
+                except Exception:
+                    w2.write(path + '/' + file + '/' + js)
+                    w2.write('\n')
 
     w1.close()
     w2.close()
