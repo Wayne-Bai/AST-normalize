@@ -123,7 +123,8 @@ def Normalize(graph, dics, property):
                         if dics[k-1]['type'] == 'AssignmentExpression' or dics[k-1]['type'] == 'ForInStatement'\
                                 or dics[k-1]['type'] == 'SequenceExpression' or dics[k-1]['type'] == 'SwitchCase'\
                                 or dics[k-1]['type'] == 'CatchClause' or dics[k-1]['type'] == 'AssignmentPattern'\
-                                or dics[k-1]['type'] == 'Property' or dics[k-1]['type'] == 'NewExpression':
+                                or dics[k-1]['type'] == 'Property' or dics[k-1]['type'] == 'NewExpression' \
+                                or dics[k-1]['type'] == 'VariableDeclarator':
                             curr = dics[i]['value']
                             dics[i]['value'] = 'v' + str(var_flag)
                             for j in range(len(dics)):
@@ -268,14 +269,29 @@ def Normalize(graph, dics, property):
                             if 'value' in dics[j].keys() and dics[j]['value'] == curr:
                                 dics[j]['value'] = 's' + str(str_flag)
                     str_flag += 1
+            if dics[i]['type'] == 'Literal':
+                try:
+                    if '.' in dics[i]['value']:
+                        dics[i]['value'] = float(dics[i]['value'])
+                    else:
+                        dics[i]['value'] = int(dics[i]['value'])
+                except:
+                    if dics[i]['value'] == graph.nodes[dics[i]['id'] + 1]['feature'] and dics[i]['value'] != 'use strict':
+                        curr = dics[i]['value']
+                        dics[i]['value'] = 's' + str(str_flag)
+                        for j in range(len(dics)):
+                            if isinstance(dics[j], dict):
+                                if 'value' in dics[j].keys() and dics[j]['value'] == curr:
+                                    dics[j]['value'] = 's' + str(str_flag)
+                        str_flag += 1
     return dics
 
 
 if __name__ == '__main__':
-    file = 'test/check1.json'
+    file = 'dp-AST-100.json'
     f1 = open(file, 'r')
     f2 = open('properties.txt', 'r')
-    w = open('test/deduplicate_50graphs-normalize.json', 'a')
+    w = open('dp-AST-100-normalize.json', 'a')
 
     property = []
     flag = 1
@@ -288,11 +304,11 @@ if __name__ == '__main__':
         dics = json.loads(lines)
         graph = Generate(dics)
         file_name = file + '-' + str(flag)
-        Visualize(graph,file_name)
-        # normalize_dic = Normalize(graph,dics,property)
-        # w2j = json.dumps(normalize_dic)
-        # w.write(w2j)
-        # w.write('\n')
-        # normalize_graph = Generate(normalize_dic)
+        # Visualize(graph,file_name)
+        normalize_dic = Normalize(graph,dics,property)
+        w2j = json.dumps(normalize_dic)
+        w.write(w2j)
+        w.write('\n')
+        normalize_graph = Generate(normalize_dic)
         # Visualize(normalize_graph,file_name,Original=False)
         flag += 1
