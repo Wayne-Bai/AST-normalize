@@ -288,10 +288,10 @@ def Normalize(graph, dics, property):
 
 
 if __name__ == '__main__':
-    file = 'dp-AST-100.json'
+    file = 'AST-POC.json'
     f1 = open(file, 'r')
     f2 = open('properties.txt', 'r')
-    w = open('dp-AST-100-normalize.json', 'a')
+    w = open('AST-POC-normalize.json', 'a')
 
     property = []
     flag = 1
