@@ -64,9 +64,9 @@ def extractAST(dic, dic_list, flag):
 
 
 if __name__ == '__main__':
-    w1 = open('AST-UAF-address.txt', 'a')
-    w2 = open('problem-AST-UAF.txt', 'a')
-    path = 'dataset-type/UAF'
+    w1 = open('AST-TC-address.txt', 'a')
+    w2 = open('problem-AST-TC.txt', 'a')
+    path = 'dataset-type/TC'
     files = os.listdir(path)
     for file in files:
         # code for dataset-poc-pro
@@ -142,7 +142,7 @@ if __name__ == '__main__':
             dic, final_list, flag = extractAST(tree_dic, ast_dic, flag)
             AST_list = sorted(final_list, key=lambda e: e.__getitem__('id'), reverse=False)
             print(tree)
-            f1 = open('AST-UAF.json', 'a')
+            f1 = open('AST-TC.json', 'a')
             print(AST_list)
             AST_list_json = json.dumps(AST_list)
 
