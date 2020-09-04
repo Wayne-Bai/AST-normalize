@@ -1,0 +1,8 @@
+dataset-type/UAF/CVE-2016-4622.js
+dataset-type/UAF/CVE-2019-0568.js
+dataset-type/UAF/CVE-2018-8389.js
+dataset-type/UAF/CVE-2017-11793.js
+dataset-type/UAF/CVE-2016-1857.js
+dataset-type/UAF/CVE-2019-0930.js
+dataset-type/UAF/CVE-2017-11918.js
+dataset-type/UAF/CVE-2017-2491.js

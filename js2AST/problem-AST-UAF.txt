@@ -1,0 +1,3 @@
+dataset-type/UAF/CVE-2017-11903.js
+dataset-type/UAF/CVE-2018-0935.js
+dataset-type/UAF/CVE-2018-8353.js
