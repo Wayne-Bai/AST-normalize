@@ -1,7 +1,7 @@
 import json
 
-f = open('AST-POC.json', 'r')
-w = open('NodeLabel-POC.txt', 'a')
+f = open('AST-UAF.json', 'r')
+w = open('NodeLabel-UAF.txt', 'a')
 
 node_label = []
 for line in f.readlines():
